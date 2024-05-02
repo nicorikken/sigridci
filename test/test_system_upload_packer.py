@@ -1,4 +1,5 @@
 # Copyright Software Improvement Group
+# Copyright Alliander N.V.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -287,6 +288,21 @@ class SystemUploadPackerTest(TestCase):
         self.createTempFile(sourceDir, "a.py", "")
         self.createTempFile(sourceDir, "b.zip", "")
         self.createTempFile(sourceDir, "c.tar", "")
+
+        outputFile = tempfile.mkstemp()[1]
+
+        options = PublishOptions("aap", "noot", RunMode.FEEDBACK_ONLY, sourceDir)
+        uploadPacker = SystemUploadPacker(options)
+        uploadPacker.prepareUpload(outputFile)
+
+        self.assertEqual(os.path.exists(outputFile), True)
+        self.assertEqual(ZipFile(outputFile).namelist(), ["a.py"])
+
+
+    def testIgnoreSymlink(self):
+        sourceDir = tempfile.mkdtemp()
+        self.createTempFile(sourceDir, "a.py", "")
+        os.symlink(sourceDir + "/a.py", sourceDir + "/linked-a.py")
 
         outputFile = tempfile.mkstemp()[1]
 
